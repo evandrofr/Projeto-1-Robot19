@@ -29,6 +29,9 @@ viu_bird = False
 atraso = 1.5E9
 area = 0.0
 check_delay = False 
+bumper = None
+dist = None
+
 
 def roda_todo_frame(imagem):
     global cv_image
@@ -69,11 +72,17 @@ def roda_todo_frame(imagem):
 
 
 
-bumper = None
-def scaneou(data):
+
+def scaneou_bumper(data):
     global bumper
     bumper = data.data
     return bumper
+
+
+def scaneou_scan(dado):
+    global dist
+    dist = (np.array(dado.ranges))[0]
+    return dist
 
     
 
@@ -91,7 +100,9 @@ if __name__=="__main__":
 
     velocidade_saida = rospy.Publisher("/cmd_vel", Twist, queue_size = 1)
 
-    recebe_bumper = rospy.Subscriber("/bumper", UInt8, scaneou)
+    recebe_bumper = rospy.Subscriber("/bumper", UInt8, scaneou_bumper)
+
+    recebe_scan = rospy.Subscriber("/scan", LaserScan, scaneou_scan)
 
 
 
@@ -100,7 +111,7 @@ if __name__=="__main__":
     velocidade_angular_p = Twist(Vector3(0,0,0), Vector3(0,0,pi/10))
     velocidade_angular_n = Twist(Vector3(0,0,0), Vector3(0,0,-pi/10))
     velocidade_re = Twist(Vector3(-0.2,0,0), Vector3(0,0,0))
-    velocidade_fuga = Twist(Vector3(-0.3,0,0), Vector3(0,0,-0.1))
+    velocidade_fuga = Twist(Vector3(-0.3,0,0), Vector3(0,0,-0.2))
     velocidade = Twist(Vector3(0.2,0,0), Vector3(0,0,0))
     parado = Twist(Vector3(0,0,0),Vector3(0,0,0))
 
@@ -110,21 +121,9 @@ if __name__=="__main__":
         print(media)
 
         if len(media) != 0 and len(centro_cor) != 0:
-            print("Média dos vermelhos: {0}, {1}".format(media[0], media[1]))
-            print("Centro dos vermelhos: {0}, {1}".format(centro_cor[0], centro_cor[1]))
+            # print("Média dos vermelhos: {0}, {1}".format(media[0], media[1]))
+            # print("Centro dos vermelhos: {0}, {1}".format(centro_cor[0], centro_cor[1]))
 
-
-            # if media[0] > centro[0]:
-            #   vel = Twist(Vector3(0.1,0,0), Vector3(0,0,0.5))
-            #   print("maior")
-
-            # elif media[0] == centro[0]:
-            #   vel = Twist(Vector3(0.1,0,0), Vector3(0,0,0))
-            #   print("igual")
-
-            # else:
-            #   vel = Twist(Vector3(0.1,0,0), Vector3(0,0,-0.5))
-            #   print("menor")
 
             if media[0] - centro_cor[0] < -30:
                 vel = Twist(Vector3(0.1,0,0), Vector3(0,0,-0.5))
@@ -143,6 +142,16 @@ if __name__=="__main__":
             velocidade_saida.publish(velocidade_fuga)
             rospy.sleep(1)
             viu_bird = False
+
+        if dist != None:
+            if (min(dist[0:10]) < 0.3 or min(dist[349:359]) < 0.3):
+                velocidade_saida.publish(parado)
+                rospy.sleep(1)
+                velocidade_saida.publish(velocidade_fuga)
+                rospy.sleep(0.5)
+                velocidade_saida.publish(velocidade_angular_n)
+                rospy(1)
+
 
 
 
@@ -195,6 +204,8 @@ if __name__=="__main__":
             velocidade_saida.publish(velocidade_angular)
             rospy.sleep(3)
             bumper = 0
+
+
 
         velocidade_saida.publish(vel)
         rospy.sleep(0.1)
