@@ -143,6 +143,9 @@ if __name__=="__main__":
             rospy.sleep(1)
             viu_bird = False
 
+
+        print("olha a treta:", dist)
+
         if dist != None:
             if (min(dist[0:10]) < 0.3 or min(dist[349:359]) < 0.3):
                 velocidade_saida.publish(parado)
