@@ -144,8 +144,6 @@ if __name__=="__main__":
             viu_bird = False
 
 
-        print("olha a treta:", dist)
-
         if dist != None:
             if (min(dist[0:10]) < 0.3 or min(dist[349:359]) < 0.3):
                 velocidade_saida.publish(parado)
@@ -153,7 +151,23 @@ if __name__=="__main__":
                 velocidade_saida.publish(velocidade_fuga)
                 rospy.sleep(0.5)
                 velocidade_saida.publish(velocidade_angular_n)
-                rospy(1)
+                rospy.sleep(1)
+
+            if min(dist[80:10]) < 0.3:
+                desvio = Twist(Vector3(0.5,0,0), Vector3(0,0,-0.5))
+                velocidade_saida.publish(desvio)
+                rospy.sleep(2)
+
+
+            if min(dist[170:190]) < 0.3:
+                velocidade_saida.publish(velocidade)
+                rospy.sleep(2)
+
+
+            if min(dist[260:280]) < 0.3:
+                desvio = Twist(Vector3(0.5,0,0), Vector3(0,0,0.5))
+                velocidade_saida.publish(desvio)
+                rospy.sleep(2)
 
 
 
