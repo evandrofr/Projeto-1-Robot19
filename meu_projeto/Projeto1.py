@@ -162,7 +162,7 @@ if __name__=="__main__":
 
             if (min(dist[79:99]) < 0.25):
                 print("Quase batendo: Esquerda")
-                desvio = Twist(Vector3(0,0,0), Vector3(0,0,-0.7))
+                desvio = Twist(Vector3(0,0,0), Vector3(0,0,0.7))
                 velocidade_saida.publish(desvio)
                 rospy.sleep(1)
 
@@ -175,7 +175,7 @@ if __name__=="__main__":
 
             if (min(dist[259:279]) < 0.25):
                 print("Quase batendo: Direita")
-                desvio = Twist(Vector3(0,0,0), Vector3(0,0,0.7))
+                desvio = Twist(Vector3(0,0,0), Vector3(0,0,-0.7))
                 velocidade_saida.publish(desvio)
                 rospy.sleep(1)
 
